@@ -1,17 +1,32 @@
 using System.Drawing;
-
+using System.Drawing.Imaging;
 namespace TagsCloudVisualization;
 
 class CircularCloudLayouter
 {
     private readonly Point center;
     private readonly List<Rectangle> rectangles;
-    private int aCoef = 1;
+    private int aCoef = 30;
 
     public CircularCloudLayouter(Point center)
     {
         this.center = center;
         this.rectangles = new List<Rectangle>();
+    }
+
+    private Size GetSizeForImage()
+    {
+        int maxHeight = 0;
+        int maxWidth = 0;
+        for (int i = 0; i<rectangles.Count; i++)
+        {
+            int maxDistXFromCenter = Math.Max(Math.Abs(center.Y - rectangles[i].Top), Math.Abs(center.Y - rectangles[i].Bottom));
+            int maxDistYFromCenter = Math.Max(Math.Abs(center.X - rectangles[i].Left), Math.Abs(center.X - rectangles[i].Right));
+            
+            maxHeight = Math.Max(maxHeight, maxDistYFromCenter);
+            maxWidth = Math.Max(maxWidth, maxDistXFromCenter);
+        }
+        return new Size(maxWidth*2, maxHeight*2);
     }
 
     private Point GetLeftTopCornerFromCenter(Point center, Size size)
@@ -30,7 +45,7 @@ class CircularCloudLayouter
         return result;
     }
 
-    public bool IsIntersectingWithOtherRectangles(Rectangle rectangle)
+    private bool IsIntersectingWithOtherRectangles(Rectangle rectangle)
     {
 
         foreach (Rectangle otherRectangle in rectangles)
@@ -136,5 +151,33 @@ class CircularCloudLayouter
         
         rectangles.Add(result);
         return result;
+    }
+
+    public void GenerateImage(String pathToSave)
+    {
+        Size imageSize = GetSizeForImage();
+        Bitmap bitmap = new Bitmap(imageSize.Width, imageSize.Height);
+        Graphics graphics = Graphics.FromImage(bitmap);
+        Pen pen = new Pen(Color.Black, 1);
+        Brush brush = new SolidBrush(Color.OrangeRed);
+        
+        int offsetX = imageSize.Width / 2 - center.X;
+        int offsetY = imageSize.Height / 2 - center.Y;
+        
+        for (int i = 0; i < rectangles.Count; i++)
+        {
+            Rectangle OffsetRectangle = new Rectangle(
+                new Point(rectangles[i].X + offsetX, rectangles[i].Y + offsetY), 
+                new Size(rectangles[i].Width, rectangles[i].Height
+                ));
+            graphics.FillRectangle(brush, OffsetRectangle);
+            graphics.DrawRectangle(pen, OffsetRectangle);
+        }
+        bitmap.Save(pathToSave, ImageFormat.Png);
+        
+        bitmap.Dispose();
+        graphics.Dispose();
+        pen.Dispose();
+        brush.Dispose();
     }
 }
