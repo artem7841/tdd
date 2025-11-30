@@ -79,7 +79,6 @@ class CircularCloudLayouter
             
             if (IsIntersectingWithOtherRectangles(rectangle))
             {
-                rectangle.Y = prevY;
                 rectangle.X = prevX;
                 break;
             }
@@ -99,7 +98,6 @@ class CircularCloudLayouter
             if (IsIntersectingWithOtherRectangles(rectangle))
             {
                 rectangle.Y = prevY;
-                rectangle.X = prevX;
                 break;
             }
 

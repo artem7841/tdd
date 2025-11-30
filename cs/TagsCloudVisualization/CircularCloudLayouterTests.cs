@@ -145,8 +145,8 @@ public class CircularCloudLayouterTests
         var rectangles = new Rectangle[sizes.Length];
         for (int i = 0; i < sizes.Length; i++)
         {
+            
             rectangles[i] = layouter.PutNextRectangle(sizes[i]);
-            Console.WriteLine(rectangles[i]);
         }
         
         for (int i = 0; i < rectangles.Length; i++)
@@ -154,7 +154,7 @@ public class CircularCloudLayouterTests
             for (int j = i + 1; j < rectangles.Length; j++)
             {
                 
-                rectangles[i].IntersectsWith(rectangles[j]).Should().BeFalse(rectangles[i] + " and " + rectangles[j] + " intersect");
+                rectangles[i].IntersectsWith(rectangles[j]).Should().BeFalse(rectangles[i] + " " + i + " and " + rectangles[j] + " " + j + " intersect");
             }
         }
     }
