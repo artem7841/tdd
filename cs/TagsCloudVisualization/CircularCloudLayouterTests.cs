@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using FluentAssertions;
+using NUnit.Framework.Interfaces;
 
 
 namespace TagsCloudVisualization;
@@ -10,12 +11,14 @@ public class CircularCloudLayouterTests
     private Point center;
     private CircularCloudLayouter layouter;
     private Size[] sizes;
+    private string imagePath;
     
     [SetUp]
     public void Setup()
     {
         center = new Point(0, 0);
         layouter = new CircularCloudLayouter(center);
+        imagePath = Path.Combine(TestContext.CurrentContext.TestDirectory, $"{TestContext.CurrentContext.Test.Name}_cloude.png");
         
         int len = 500;
         sizes = new Size[len];
@@ -25,6 +28,25 @@ public class CircularCloudLayouterTests
             sizes[i] =  new Size(random.Next(40, 240), random.Next(15, 30));
         }
         
+    }
+    
+    [TearDown]
+    public void TearDown()
+    {
+        var testResult = TestContext.CurrentContext.Result.Outcome;
+        
+        if (testResult.Status == TestStatus.Failed)
+        {
+            try
+            {
+                layouter.GenerateImage(imagePath);
+                Console.WriteLine($"Tag cloud visualization saved to file {imagePath}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Fail to save image: {e.Message}");
+            }
+        }
     }
 
     public Point GetRectangleCenter(Rectangle rectangle)
@@ -210,10 +232,26 @@ public class CircularCloudLayouterTests
         {
             rectangles[i] = layouter.PutNextRectangle(sizes[i]);
         }
-        string imagePath = Path.Combine(TestContext.CurrentContext.TestDirectory, "cloude3.png");
+        
         
         layouter.GenerateImage(imagePath);
         
         File.Exists(imagePath).Should().BeTrue("image not create");
+    }
+    
+    [Test]
+    public void GenerateImage_EmptyRectangles_ShouldThrowExeption()
+    {
+        Action act = () => layouter.GenerateImage(imagePath);
+
+        act.Should().Throw<InvalidOperationException>();
+    }
+    
+    [Test]
+    public void GenerateImage_EmptyPath_ShouldThrowExeption()
+    {
+        Action act = () => layouter.GenerateImage(null);
+
+        act.Should().Throw<ArgumentNullException>();
     }
 }

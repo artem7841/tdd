@@ -153,11 +153,22 @@ class CircularCloudLayouter
 
     public void GenerateImage(String pathToSave)
     {
+        if (string.IsNullOrWhiteSpace(pathToSave))
+        {
+            throw new ArgumentNullException("pathToSave can not be null or empty" );
+        }
+
+        if (rectangles.Count == 0)
+        {
+            throw new InvalidOperationException("rectangles can not be empty" );
+        }
+        
+   
         Size imageSize = GetSizeForImage();
-        Bitmap bitmap = new Bitmap(imageSize.Width, imageSize.Height);
-        Graphics graphics = Graphics.FromImage(bitmap);
-        Pen pen = new Pen(Color.Black, 1);
-        Brush brush = new SolidBrush(Color.OrangeRed);
+        using Bitmap bitmap = new Bitmap(imageSize.Width, imageSize.Height);
+        using Graphics graphics = Graphics.FromImage(bitmap);
+        using Pen pen = new Pen(Color.Black, 1);
+        using Brush brush = new SolidBrush(Color.OrangeRed);
         
         int offsetX = imageSize.Width / 2 - center.X;
         int offsetY = imageSize.Height / 2 - center.Y;
@@ -173,9 +184,7 @@ class CircularCloudLayouter
         }
         bitmap.Save(pathToSave, ImageFormat.Png);
         
-        bitmap.Dispose();
-        graphics.Dispose();
-        pen.Dispose();
-        brush.Dispose();
+        
+        
     }
 }
