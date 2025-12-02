@@ -98,14 +98,6 @@ class CircularCloudLayouter
         var result = new Point(x, y);
         return result;
     }
-    
-    private Point GetCenterOfRectangle(Rectangle rectangle)
-    {
-        var x = rectangle.X + rectangle.Width / 2;
-        var y = rectangle.Y + rectangle.Height / 2;
-        var result = new Point(x, y);
-        return result;
-    }
 
     private bool IsIntersectingWithOtherRectangles(Rectangle rectangle)
     {
@@ -124,10 +116,10 @@ class CircularCloudLayouter
         var rectangle = rec;
         var prevX = rectangle.X;
         var prevY = rectangle.Y;
-        while (GetCenterOfRectangle(rectangle).X != center.X)
+        while (rectangle.GetCenter().X != center.X)
         {
             prevX = rectangle.X;
-            if (center.X - GetCenterOfRectangle(rectangle).X > 0)
+            if (center.X - rectangle.GetCenter().X > 0)
             {
                 rectangle.X++;
             }
@@ -142,10 +134,10 @@ class CircularCloudLayouter
                 break;
             }
         }
-        while (GetCenterOfRectangle(rectangle).Y != center.Y)
+        while (rectangle.GetCenter().Y != center.Y)
         {
             prevY = rectangle.Y;
-            if (center.Y - GetCenterOfRectangle(rectangle).Y > 0)
+            if (center.Y - rectangle.GetCenter().Y > 0)
             {
                 rectangle.Y++;
             }

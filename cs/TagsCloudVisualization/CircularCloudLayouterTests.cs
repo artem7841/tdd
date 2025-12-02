@@ -51,13 +51,6 @@ public class CircularCloudLayouterTests
         }
     }
     
-    public Point GetRectangleCenter(Rectangle rectangle)
-    {
-        var x = rectangle.X + rectangle.Width / 2;
-        var y = rectangle.Y + rectangle.Height / 2;
-        return new Point(x, y);
-    }
-    
     public bool TwoRectanglesIsPressed(Rectangle firstRectangle, Rectangle secondRectangle)
     {
         var IsPressedX = (firstRectangle.X + firstRectangle.Width == secondRectangle.X ||
@@ -134,7 +127,7 @@ public class CircularCloudLayouterTests
 
         var rectangle = layouter.PutNextRectangle(newRecSize);
         
-        var rectangleCenter = GetRectangleCenter(rectangle);
+        var rectangleCenter = rectangle.GetCenter();
         rectangleCenter.X.Should().Be(x);
         rectangleCenter.Y.Should().Be(y);
     }
