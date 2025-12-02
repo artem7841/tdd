@@ -50,10 +50,10 @@ public class RectanglesDrawer
     {
         var maxHeight = 0;
         var maxWidth = 0;
-        for (int i = 0; i < rectangles.Length; i++)
+        foreach (var rectangle in rectangles)
         {
-            var maxDistYFromCenter = Math.Max(Math.Abs(center.Y - rectangles[i].Top), Math.Abs(center.Y - rectangles[i].Bottom));
-            var maxDistXFromCenter = Math.Max(Math.Abs(center.X - rectangles[i].Left), Math.Abs(center.X - rectangles[i].Right));
+            var maxDistYFromCenter = Math.Max(Math.Abs(center.Y - rectangle.Top), Math.Abs(center.Y - rectangle.Bottom));
+            var maxDistXFromCenter = Math.Max(Math.Abs(center.X - rectangle.Left), Math.Abs(center.X - rectangle.Right));
             
             maxHeight = Math.Max(maxHeight, maxDistYFromCenter);
             maxWidth = Math.Max(maxWidth, maxDistXFromCenter);

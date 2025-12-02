@@ -84,14 +84,14 @@ public class CircularCloudLayouterTests
     {
         double maxRadius = 0;
         
-        for (int i = 0; i < rectangles.Length; i++)
+        foreach (var rectangle in rectangles)
         {
             Point[] points =
             {
-                new Point(rectangles[i].Left, rectangles[i].Top),
-                new Point(rectangles[i].Left, rectangles[i].Bottom),
-                new Point(rectangles[i].Right, rectangles[i].Top),
-                new Point(rectangles[i].Right, rectangles[i].Bottom)
+                new Point(rectangle.Left, rectangle.Top),
+                new Point(rectangle.Left, rectangle.Bottom),
+                new Point(rectangle.Right, rectangle.Top),
+                new Point(rectangle.Right, rectangle.Bottom)
             };
             foreach (var point in points)
             {
