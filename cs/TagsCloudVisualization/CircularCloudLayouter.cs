@@ -13,15 +13,77 @@ class CircularCloudLayouter
         this.center = center;
         this.rectangles = new List<Rectangle>();
     }
+    
+    public Rectangle PutNextRectangle(Size rectangleSize)
+    {
+        if (rectangleSize.Width <= 0 || rectangleSize.Height <= 0)
+        {
+            throw new ArgumentOutOfRangeException("rectangleSize is <= 0");
+        }
+        
+        var leftTopCorner = GetLeftTopCornerFromCenter(center, rectangleSize);
+        var rectangle = new Rectangle(leftTopCorner, rectangleSize);
+        
+        if (rectangles.Count == 0)
+        {
+            rectangles.Add(rectangle);
+            return rectangle;
+        }
+        
+        var angle = 180;
+        while (IsIntersectingWithOtherRectangles(rectangle))
+        {
+            angle++;
+            var nextPointOnSpiral = GetNextPointOnSpiral(angle);
+            var newRecPosition = GetLeftTopCornerFromCenter(nextPointOnSpiral,  rectangleSize);
+            rectangle.X = newRecPosition.X;
+            rectangle.Y = newRecPosition.Y;
+        }
+
+        var result = PushRectangleToCenter(rectangle);
+        rectangles.Add(result);
+        return result;
+    }
+
+    public void GenerateImage(String pathToSave)
+    {
+        if (string.IsNullOrWhiteSpace(pathToSave))
+        {
+            throw new ArgumentNullException("pathToSave can not be null or empty" );
+        }
+
+        if (rectangles.Count == 0)
+        {
+            throw new InvalidOperationException("rectangles can not be empty" );
+        }
+        
+        var imageSize = GetSizeForImage();
+        using var bitmap = new Bitmap(imageSize.Width, imageSize.Height);
+        using var graphics = Graphics.FromImage(bitmap);
+        using var pen = new Pen(Color.Black, 1);
+        using var brush = new SolidBrush(Color.OrangeRed);
+        
+        var offsetX = imageSize.Width / 2 - center.X;
+        var offsetY = imageSize.Height / 2 - center.Y;
+        
+        for (int i = 0; i < rectangles.Count; i++)
+        {
+            var offsetRectangle = rectangles[i];
+            offsetRectangle.Offset(offsetX, offsetY);
+            graphics.FillRectangle(brush, offsetRectangle);
+            graphics.DrawRectangle(pen, offsetRectangle);
+        }
+        bitmap.Save(pathToSave, ImageFormat.Png);
+    }
 
     private Size GetSizeForImage()
     {
-        int maxHeight = 0;
-        int maxWidth = 0;
-        for (int i = 0; i<rectangles.Count; i++)
+        var maxHeight = 0;
+        var maxWidth = 0;
+        for (int i = 0; i < rectangles.Count; i++)
         {
-            int maxDistXFromCenter = Math.Max(Math.Abs(center.Y - rectangles[i].Top), Math.Abs(center.Y - rectangles[i].Bottom));
-            int maxDistYFromCenter = Math.Max(Math.Abs(center.X - rectangles[i].Left), Math.Abs(center.X - rectangles[i].Right));
+            var maxDistYFromCenter = Math.Max(Math.Abs(center.Y - rectangles[i].Top), Math.Abs(center.Y - rectangles[i].Bottom));
+            var maxDistXFromCenter = Math.Max(Math.Abs(center.X - rectangles[i].Left), Math.Abs(center.X - rectangles[i].Right));
             
             maxHeight = Math.Max(maxHeight, maxDistYFromCenter);
             maxWidth = Math.Max(maxWidth, maxDistXFromCenter);
@@ -31,23 +93,22 @@ class CircularCloudLayouter
 
     private Point GetLeftTopCornerFromCenter(Point center, Size size)
     {
-        int X = center.X -  size.Width / 2;
-        int Y = center.Y -  size.Height / 2;
-        Point result = new Point(X, Y);
+        var x = center.X - size.Width / 2;
+        var y = center.Y - size.Height / 2;
+        var result = new Point(x, y);
         return result;
     }
     
     private Point GetCenterOfRectangle(Rectangle rectangle)
     {
-        int X = rectangle.X + rectangle.Width / 2;
-        int Y = rectangle.Y + rectangle.Height / 2;
-        Point result = new Point(X, Y);
+        var x = rectangle.X + rectangle.Width / 2;
+        var y = rectangle.Y + rectangle.Height / 2;
+        var result = new Point(x, y);
         return result;
     }
 
     private bool IsIntersectingWithOtherRectangles(Rectangle rectangle)
     {
-
         foreach (Rectangle otherRectangle in rectangles)
         {
             if (otherRectangle.IntersectsWith(rectangle))
@@ -60,13 +121,11 @@ class CircularCloudLayouter
 
     private Rectangle PushRectangleToCenter(Rectangle rec)
     {
-
-        Rectangle rectangle = rec;
-        int prevX = rectangle.X;
-        int prevY = rectangle.Y;
+        var rectangle = rec;
+        var prevX = rectangle.X;
+        var prevY = rectangle.Y;
         while (GetCenterOfRectangle(rectangle).X != center.X)
         {
-            
             prevX = rectangle.X;
             if (center.X - GetCenterOfRectangle(rectangle).X > 0)
             {
@@ -100,91 +159,19 @@ class CircularCloudLayouter
                 rectangle.Y = prevY;
                 break;
             }
-
         }
-
         return rectangle;
     }
 
     private Point GetNextPointOnSpiral(double angle)
     {
-        double angleInRadians = Math.PI / 180 * angle;
-        double cosine = Math.Cos(angleInRadians);
-        double sine = Math.Sin(angleInRadians);
+        var angleInRadians = Math.PI / 180 * angle;
+        var cosine = Math.Cos(angleInRadians);
+        var sine = Math.Sin(angleInRadians);
 
-        int x =  (int)(aCoef * angleInRadians * cosine + center.X);
-        int y =  (int)(aCoef * angleInRadians * sine +  center.Y);
+        var x = (int)(aCoef * angleInRadians * cosine + center.X);
+        var y = (int)(aCoef * angleInRadians * sine +  center.Y);
         
         return new Point(x, y);
-    }
-
-    public Rectangle PutNextRectangle(Size rectangleSize)
-    {
-        if (rectangleSize.Width <= 0 || rectangleSize.Height <= 0)
-        {
-            throw new ArgumentOutOfRangeException("rectangleSize is <= 0");
-        }
-        
-        Point leftTopCorner = GetLeftTopCornerFromCenter(center, rectangleSize);
-        Rectangle rectangle = new Rectangle(leftTopCorner, rectangleSize);
-        
-        if (rectangles.Count == 0)
-        {
-            rectangles.Add(rectangle);
-            return rectangle;
-        }
-        
-        double angle = 180;
-        while (IsIntersectingWithOtherRectangles(rectangle))
-        {
-            angle++;
-            Point nextPointOnSpiral = GetNextPointOnSpiral(angle);
-            Point newRecPosition = GetLeftTopCornerFromCenter(nextPointOnSpiral,  rectangleSize);
-            rectangle.X = newRecPosition.X;
-            rectangle.Y = newRecPosition.Y;
-        }
-
-        Rectangle result = PushRectangleToCenter(rectangle);
-
-        
-        rectangles.Add(result);
-        return result;
-    }
-
-    public void GenerateImage(String pathToSave)
-    {
-        if (string.IsNullOrWhiteSpace(pathToSave))
-        {
-            throw new ArgumentNullException("pathToSave can not be null or empty" );
-        }
-
-        if (rectangles.Count == 0)
-        {
-            throw new InvalidOperationException("rectangles can not be empty" );
-        }
-        
-   
-        Size imageSize = GetSizeForImage();
-        using Bitmap bitmap = new Bitmap(imageSize.Width, imageSize.Height);
-        using Graphics graphics = Graphics.FromImage(bitmap);
-        using Pen pen = new Pen(Color.Black, 1);
-        using Brush brush = new SolidBrush(Color.OrangeRed);
-        
-        int offsetX = imageSize.Width / 2 - center.X;
-        int offsetY = imageSize.Height / 2 - center.Y;
-        
-        for (int i = 0; i < rectangles.Count; i++)
-        {
-            Rectangle OffsetRectangle = new Rectangle(
-                new Point(rectangles[i].X + offsetX, rectangles[i].Y + offsetY), 
-                new Size(rectangles[i].Width, rectangles[i].Height
-                ));
-            graphics.FillRectangle(brush, OffsetRectangle);
-            graphics.DrawRectangle(pen, OffsetRectangle);
-        }
-        bitmap.Save(pathToSave, ImageFormat.Png);
-        
-        
-        
     }
 }
