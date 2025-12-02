@@ -12,12 +12,14 @@ public class CircularCloudLayouterTests
     private Size[] sizes;
     private string imagePath;
     private Rectangle[] rectangles;
+    private RectanglesDrawer rectanglesDrawer;
     
     [SetUp]
     public void Setup()
     {
         center = new Point(0, 0);
         layouter = new CircularCloudLayouter(center);
+        rectanglesDrawer = new RectanglesDrawer(rectangles, center);
         imagePath = Path.Combine(TestContext.CurrentContext.TestDirectory, $"{TestContext.CurrentContext.Test.Name}_cloud.png");
         
         var len = 500;
@@ -41,7 +43,7 @@ public class CircularCloudLayouterTests
         {
             try
             {
-                layouter.GenerateImage(imagePath);
+                rectanglesDrawer.GenerateImage(imagePath);
                 Console.WriteLine($"Tag cloud visualization saved to file {imagePath}");
             }
             catch (Exception e)

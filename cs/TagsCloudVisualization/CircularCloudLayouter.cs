@@ -45,52 +45,6 @@ class CircularCloudLayouter
         return result;
     }
 
-    public void GenerateImage(String pathToSave)
-    {
-        if (string.IsNullOrWhiteSpace(pathToSave))
-        {
-            throw new ArgumentNullException("pathToSave can not be null or empty" );
-        }
-
-        if (rectangles.Count == 0)
-        {
-            throw new InvalidOperationException("rectangles can not be empty" );
-        }
-        
-        var imageSize = GetSizeForImage();
-        using var bitmap = new Bitmap(imageSize.Width, imageSize.Height);
-        using var graphics = Graphics.FromImage(bitmap);
-        using var pen = new Pen(Color.Black, 1);
-        using var brush = new SolidBrush(Color.OrangeRed);
-        
-        var offsetX = imageSize.Width / 2 - center.X;
-        var offsetY = imageSize.Height / 2 - center.Y;
-        
-        for (int i = 0; i < rectangles.Count; i++)
-        {
-            var offsetRectangle = rectangles[i];
-            offsetRectangle.Offset(offsetX, offsetY);
-            graphics.FillRectangle(brush, offsetRectangle);
-            graphics.DrawRectangle(pen, offsetRectangle);
-        }
-        bitmap.Save(pathToSave, ImageFormat.Png);
-    }
-
-    private Size GetSizeForImage()
-    {
-        var maxHeight = 0;
-        var maxWidth = 0;
-        for (int i = 0; i < rectangles.Count; i++)
-        {
-            var maxDistYFromCenter = Math.Max(Math.Abs(center.Y - rectangles[i].Top), Math.Abs(center.Y - rectangles[i].Bottom));
-            var maxDistXFromCenter = Math.Max(Math.Abs(center.X - rectangles[i].Left), Math.Abs(center.X - rectangles[i].Right));
-            
-            maxHeight = Math.Max(maxHeight, maxDistYFromCenter);
-            maxWidth = Math.Max(maxWidth, maxDistXFromCenter);
-        }
-        return new Size(maxWidth*2, maxHeight*2);
-    }
-
     private Point GetLeftTopCornerFromCenter(Point center, Size size)
     {
         var x = center.X - size.Width / 2;
